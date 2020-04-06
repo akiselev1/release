@@ -12,7 +12,8 @@ echo "************ baremetalds packet setup command ************"
 env | sort
 
 set +x
-export PACKET_PROJECT_ID=b3c1623c-ce0b-45cf-9757-c61a71e06eac
+#export PACKET_PROJECT_ID=b3c1623c-ce0b-45cf-9757-c61a71e06eac
+export PACKET_PROJECT_ID=f68bd149-488a-4b58-90a2-d675cfb78728
 PACKET_AUTH_TOKEN=$(cat ${cluster_profile}/.packetcred)
 export PACKET_AUTH_TOKEN
 set -x
