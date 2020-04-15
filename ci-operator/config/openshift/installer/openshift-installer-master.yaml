@@ -206,6 +206,6 @@ tests:
   steps:
     cluster_profile: packet
     test:
-    - ref: ipi-packet-check
+    - ref: baremetalds-packet-check
   cron: "0 */2 * * *"
 
