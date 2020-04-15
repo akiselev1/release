@@ -1,7 +1,7 @@
 ref:
   as: ipi-packet-check
   from: upi-installer
-  commands: baremetalds-packet-check-commands.sh
+  commands: baremetalds-packet-check
   resources:
     requests:
       cpu: 1000m
