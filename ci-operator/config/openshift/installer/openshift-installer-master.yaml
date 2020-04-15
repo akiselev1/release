@@ -207,5 +207,6 @@ tests:
     cluster_profile: packet
     test:
     - ref: baremetalds-packet-check
+  ci.openshift.io/role: infra
   cron: "0 */2 * * *"
 

@@ -17,7 +17,7 @@ PACKET_AUTH_TOKEN=$(cat ${cluster_profile}/.packetcred)
 export PACKET_AUTH_TOKEN
 PACKET_SERVER_TAGS="e2e-metal-ipi"
 export PACKET_SERVER_TAGS
-set -x
+
 
 # Initial check
 if [ "${CLUSTER_TYPE}" != "packet" ] ; then
@@ -29,12 +29,14 @@ fi
 servers="$(curl -X GET --header 'Accept: application/json' --header "X-Auth-Token: ${PACKET_AUTH_TOKEN}"\
  "https://api.packet.net/projects/${PACKET_PROJECT_ID}/devices?exclude=root_password,ssh_keys,created_by")"
 
+set -x
+
 #Assuming all servers created more than 4 hours = 14400 sec ago are leaks
 #(now-(.created_at|fromdate) starts from -3600 for some reason
 #using 14400-3600=10800 sec until mystery resolved
 
-leaks="$(echo $servers | jq -c --arg tagMetalIpi "$PACKET_SERVER_TAGS" '.devices[]| \
-      select ((now-(.created_at|fromdate))>10800 and any(.tags[]; contains($tagMetalIpi)))|[.hostname,.id,.tags]')"
+leaks="$(echo $servers | jq -c --arg tagMetalIpi "$PACKET_SERVER_TAGS" '.devices[]|select((now-(.created_at|fromdate))>10800 and any(.tags[]; contains($tagMetalIpi)))|[.hostname,.id,.tags]')"
+
 
 echo "************ all potential leaked servers in project ************"
 echo $leaks
