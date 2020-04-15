@@ -202,3 +202,11 @@ tests:
   steps:
     cluster_profile: vsphere
     workflow: origin-e2e-vsphere
+- as: ipi-packet-check
+  steps:
+    cluster_profile: packet
+    workflow: baremetalds-e2e
+    test:
+      ref: ipi-packet-check
+  cron: "0 */2 * * *"
+

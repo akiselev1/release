@@ -12,8 +12,7 @@ echo "************ baremetalds packet setup command ************"
 env | sort
 
 set +x
-#export PACKET_PROJECT_ID=b3c1623c-ce0b-45cf-9757-c61a71e06eac
-export PACKET_PROJECT_ID=f68bd149-488a-4b58-90a2-d675cfb78728
+export PACKET_PROJECT_ID=b3c1623c-ce0b-45cf-9757-c61a71e06eac
 PACKET_AUTH_TOKEN=$(cat ${cluster_profile}/.packetcred)
 export PACKET_AUTH_TOKEN
 set -x
@@ -56,7 +55,7 @@ resource "packet_device" "server" {
   facilities       = ["sjc1", "ewr1"]
   operating_system = "centos_8"
   billing_cycle    = "hourly"
-  tags             = ["prow_job_id=$PROW_JOB_ID", "leased_resource=$LEASED_RESOURCE", "prow_job_url=$prow_job_url"]
+  tags             = ["prow_job_id=$PROW_JOB_ID", "leased_resource=$LEASED_RESOURCE", "prow_job_url=$prow_job_url", "scope=e2e-metal-ipi"]
 }
 EOF
 
