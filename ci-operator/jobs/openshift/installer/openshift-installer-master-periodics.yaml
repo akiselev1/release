@@ -12,7 +12,6 @@ periodics:
   labels:
     ci-operator.openshift.io/prowgen-controlled: "true"
     pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    ci.openshift.io/role: infra
   name: periodic-ci-openshift-installer-master-ipi-packet-check
   spec:
     containers:
