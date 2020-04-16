@@ -27,16 +27,16 @@ fi
 
 #Packet API call to get list of servers in project
 servers="$(curl -X GET --header 'Accept: application/json' --header "X-Auth-Token: ${PACKET_AUTH_TOKEN}"\
- "https://api.packet.net/projects/${PACKET_PROJECT_ID}/devices?exclude=root_password,ssh_keys,created_by")"
+ "https://api.packet.net/projects/${PACKET_PROJECT_ID}/devices?exclude=root_password,ssh_keys,created_by&per_page=1000")"
 
 
 
 #Assuming all servers created more than 4 hours = 14400 sec ago are leaks
-leaks="$(echo "$servers" | jq -c --arg tagMetalIpi "$PACKET_SERVER_TAGS"\
+leaks="$(echo "$servers" | jq -r --arg tagMetalIpi "$PACKET_SERVER_TAGS"\
  '.devices[]|select((now-(.created_at|fromdate))>14400 and any(.tags[]; contains($tagMetalIpi)))|[.hostname,.id,.created_at,.tags]')"
 
 #debug timestamps
-timestamps="(echo "$servers" | jq -c '.devices[]|[.created_at, now, (now - (.created_at|fromdate))]')"
+timestamps="$(echo "$servers" | jq -c '.devices[]|[.created_at, now, (now - (.created_at|fromdate))]')"
 
 set -x
 
@@ -49,5 +49,7 @@ echo "************ all potential leaked servers in project ************"
 
 if [[ -n "$leaks" ]]
 then
-    echo "$leaks"  
+    echo "$leaks"
+    curl -X POST --data-urlencode\
+     "payload={\"text\":\"Potential Packet.net leaks found!\"}" https://hooks.slack.com/services/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
 fi
