@@ -32,20 +32,18 @@ servers="$(curl -X GET --header 'Accept: application/json' --header "X-Auth-Toke
 
 
 #Assuming all servers created more than 4 hours = 14400 sec ago are leaks
-#(now-(.created_at|fromdate) starts from -3600 for some reason
-#using 14400-3600=10800 sec until mystery resolved
-
-leaks="$(echo $servers | jq -c --arg tagMetalIpi "$PACKET_SERVER_TAGS" '.devices[]|select((now-(.created_at|fromdate))>10800 and any(.tags[]; contains($tagMetalIpi)))|[.hostname,.id,.tags]')"
+leaks="$(echo $servers | jq -c --arg tagMetalIpi "$PACKET_SERVER_TAGS"\
+ '.devices[]|select((now-(.created_at|fromdate))>14400 and any(.tags[]; contains($tagMetalIpi)))|[.hostname,.id,.created_at,.tags]')"
 
 #timestamps
-timestamps="(echo $servers | jq -c '.devices[]|[.created_at, now, (now - (.created_at|fromdate))]'
+timestamps="(echo $servers | jq -c '.devices[]|[.created_at, now, (now - (.created_at|fromdate))]')"
 
 set -x
-echo "************ current time and timestamps processed by jq ************"
-echo $"(date)"
-echo $"(date -u)"
-echo $timestamps | jq .
 
+echo "************ current time and timestamps processed by jq ************"
+echo "$(date)"
+echo "$(date -u)"
+echo $timestamps
 
 echo "************ all potential leaked servers in project ************"
 
