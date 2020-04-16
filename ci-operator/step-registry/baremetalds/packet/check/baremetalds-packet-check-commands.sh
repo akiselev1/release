@@ -29,7 +29,7 @@ fi
 servers="$(curl -X GET --header 'Accept: application/json' --header "X-Auth-Token: ${PACKET_AUTH_TOKEN}"\
  "https://api.packet.net/projects/${PACKET_PROJECT_ID}/devices?exclude=root_password,ssh_keys,created_by")"
 
-set -x
+
 
 #Assuming all servers created more than 4 hours = 14400 sec ago are leaks
 #(now-(.created_at|fromdate) starts from -3600 for some reason
@@ -37,11 +37,19 @@ set -x
 
 leaks="$(echo $servers | jq -c --arg tagMetalIpi "$PACKET_SERVER_TAGS" '.devices[]|select((now-(.created_at|fromdate))>10800 and any(.tags[]; contains($tagMetalIpi)))|[.hostname,.id,.tags]')"
 
+#timestamps
+timestamps="(echo $servers | jq -c '.devices[]|[.created_at, now, (now - (.created_at|fromdate))]'
+
+set -x
+echo "************ current time and timestamps processed by jq ************"
+echo $"(date)"
+echo $"(date -u)"
+echo $timestamps | jq .
+
 
 echo "************ all potential leaked servers in project ************"
-echo $leaks
 
 if [[ -n "$leaks" ]]
 then
-    echo $leaks | mail -s "Packet suspected leaks 4+ hours old" akiselev@redhat.com afasano@redhat.com 
+    echo $leaks  
 fi
