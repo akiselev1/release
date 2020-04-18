@@ -4,8 +4,8 @@ set -o nounset
 set -o errexit
 set -o pipefail
 
-#cluster_profile=/var/run/secrets/ci.openshift.io/cluster-profile
-export CLUSTER_PROFILE_DIR=/var/run/secrets/ci.openshift.io/cluster-profile
+cluster_profile=/var/run/secrets/ci.openshift.io/cluster-profile
+#export CLUSTER_PROFILE_DIR=/var/run/secrets/ci.openshift.io/cluster-profile
 
 export CLUSTER_NAME=${NAMESPACE}-${JOB_NAME_HASH}
 
@@ -13,9 +13,11 @@ echo "************ baremetalds packet setup command ************"
 env | sort
 
 set +x
-PACKET_PROJECT_ID=${CLUSTER_PROFILE_DIR}/.packetid
+#PACKET_PROJECT_ID=${CLUSTER_PROFILE_DIR}/.packetid
+PACKET_PROJECT_ID=$(cat ${cluster_profile}/.packetid)
 export PACKET_PROJECT_ID
-PACKET_AUTH_TOKEN=${CLUSTER_PROFILE_DIR}/.packetcred
+#PACKET_AUTH_TOKEN=${CLUSTER_PROFILE_DIR}/.packetcred
+PACKET_AUTH_TOKEN=$(cat ${cluster_profile}/.packetcred)
 export PACKET_AUTH_TOKEN
 #SLACK_AUTH_TOKEN=${CLUSTER_PROFILE_DIR}/.slackhook
 export SLACK_AUTH_TOKEN=vgpj4CjdXwpueGOUTJk0xSoH
