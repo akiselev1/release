@@ -13,17 +13,14 @@ echo "************ baremetalds packet setup command ************"
 env | sort
 
 set +x
-#PACKET_PROJECT_ID=${CLUSTER_PROFILE_DIR}/.packetid
+
 PACKET_PROJECT_ID=$(cat ${cluster_profile}/.packetid)
 export PACKET_PROJECT_ID
-#PACKET_AUTH_TOKEN=${CLUSTER_PROFILE_DIR}/.packetcred
 PACKET_AUTH_TOKEN=$(cat ${cluster_profile}/.packetcred)
 export PACKET_AUTH_TOKEN
-#SLACK_AUTH_TOKEN=${CLUSTER_PROFILE_DIR}/.slackhook
-export SLACK_AUTH_TOKEN=vgpj4CjdXwpueGOUTJk0xSoH
-
-PACKET_SERVER_TAGS="e2e-metal-ipi"
-export PACKET_SERVER_TAGS
+SLACK_AUTH_TOKEN=$(cat ${cluster_profile}/.slackhook)
+export SLACK_AUTH_TOKEN
+export PACKET_SERVER_TAGS=e2e-metal-ipi
 
 
 # Initial check
@@ -34,22 +31,34 @@ fi
 
 #Packet API call to get list of servers in project
 servers="$(curl -X GET --header 'Accept: application/json' --header "X-Auth-Token: ${PACKET_AUTH_TOKEN}"\
- "https://api.packet.net/projects/${PACKET_PROJECT_ID}/devices?exclude=root_password,ssh_keys,created_by&per_page=1000")"
-
+ "https://api.packet.net/projects/${PACKET_PROJECT_ID}/devices?exclude=root_password,ssh_keys,created_by,project,project_lite\
+,ip_addresses,plan,meta,operating_system,facility,network_ports&per_page=1000")"
 
 #Assuming all servers created more than 4 hours = 14400 sec ago are leaks
-leaks="$(echo "$servers" | jq --tab --arg tagMetalIpi "$PACKET_SERVER_TAGS"\
- '.devices[]|select((now-(.created_at|fromdate))>14400 and any(.tags[]; contains($tagMetalIpi)))|.hostname,.id,.created_at,.tags'|sed 's/\"/ /g')"
-
+leaks="$(echo "$servers" | jq -r --arg tagMetalIpi "$PACKET_SERVER_TAGS"\
+ '.devices[]|select((now-(.created_at|fromdate))>11400 and any(.tags[]; contains($tagMetalIpi)))')"
 
 set -x
+
+leaks_report="$(echo "$leaks" | jq --tab  '.hostname,.id,.created_at,.tags'|sed 's/\"/ /g')"
+#leak_ids="$(echo "$leaks" | jq -c '.id'|sed 's/\"//g')"
 
 echo "************ report e2e-metal-ipi leaked servers in project and send slack notification ************"
 
 if [[ -n "$leaks" ]]
 then
-    echo "$leaks"
+    echo "$leaks_report"
+    set +x
     curl -X POST --data-urlencode\
      "payload={\"text\":\"New Packet.net server leaks found!\n\",\"attachments\":[{\"color\":\"warning\",\"text\":\"$leaks\"}]}"\
       https://hooks.slack.com/services/T027F3GAJ/B011TAG710V/${SLACK_AUTH_TOKEN}
+    
+    #delete leaks
+    # for l in $leak_ids
+    # do
+    #     echo $l    
+    #     curl -X DELETE --header 'Accept: application/json' --header "X-Auth-Token: ${PACKET_AUTH_TOKEN}"\
+    #      "https://api.packet.net/devices/$l"
+    # done
+    set -x
 fi
