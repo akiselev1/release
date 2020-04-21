@@ -54,11 +54,11 @@ then
       https://hooks.slack.com/services/T027F3GAJ/B011TAG710V/${SLACK_AUTH_TOKEN}
     
     #delete leaks
-    # for l in $leak_ids
+    # for leak in $leak_ids
     # do
-    #     echo $l    
+    #     echo $leak    
     #     curl -X DELETE --header 'Accept: application/json' --header "X-Auth-Token: ${PACKET_AUTH_TOKEN}"\
-    #      "https://api.packet.net/devices/$l"
+    #      "https://api.packet.net/devices/$leak"
     # done
     set -x
 fi
