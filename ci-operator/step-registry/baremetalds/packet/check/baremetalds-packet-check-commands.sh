@@ -5,7 +5,6 @@ set -o errexit
 set -o pipefail
 
 cluster_profile=/var/run/secrets/ci.openshift.io/cluster-profile
-#export CLUSTER_PROFILE_DIR=/var/run/secrets/ci.openshift.io/cluster-profile
 
 export CLUSTER_NAME=${NAMESPACE}-${JOB_NAME_HASH}
 
