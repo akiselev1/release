@@ -460,10 +460,10 @@ plank:
             memory: 20Mi
       timeout: 4h0m0s
       utility_images:
-        clonerefs: gcr.io/k8s-prow/clonerefs:v20200415-d39ee60f6
-        entrypoint: gcr.io/k8s-prow/entrypoint:v20200415-d39ee60f6
-        initupload: gcr.io/k8s-prow/initupload:v20200415-d39ee60f6
-        sidecar: gcr.io/k8s-prow/sidecar:v20200415-d39ee60f6
+        clonerefs: gcr.io/k8s-prow/clonerefs:v20200417-a6017ee5b
+        entrypoint: gcr.io/k8s-prow/entrypoint:v20200417-a6017ee5b
+        initupload: gcr.io/k8s-prow/initupload:v20200417-a6017ee5b
+        sidecar: gcr.io/k8s-prow/sidecar:v20200417-a6017ee5b
     openshift-priv:
       gcs_configuration:
         bucket: origin-ci-private
@@ -609,6 +609,9 @@ tide:
     - do-not-merge/invalid-owners-file
     repos:
     - open-cluster-management/api
+    - open-cluster-management/image-builder
+    - open-cluster-management/registration
+    - open-cluster-management/work
   - includedBranches:
     - release-4.0
     - release-4.1
@@ -1034,6 +1037,7 @@ tide:
     labels:
     - lgtm
     - approved
+    - bugzilla/valid-bug
     missingLabels:
     - needs-rebase
     - do-not-merge/hold
@@ -1392,6 +1396,7 @@ tide:
     - openshift-priv/openshift-ansible
     - openshift-priv/origin
     - openshift-priv/origin-aggregated-logging
+    - openshift-priv/prometheus-operator
     - openshift/api
     - openshift/cluster-logging-operator
     - openshift/elasticsearch-operator
@@ -1399,6 +1404,7 @@ tide:
     - openshift/openshift-ansible
     - openshift/origin
     - openshift/origin-aggregated-logging
+    - openshift/prometheus-operator
   - includedBranches:
     - feature-prom-connector
     labels:
@@ -1438,6 +1444,7 @@ tide:
     - openshift-4.1
     labels:
     - lgtm
+    - bugzilla/valid-bug
     missingLabels:
     - needs-rebase
     - do-not-merge/hold
@@ -1661,6 +1668,7 @@ tide:
     - openshift-kni/performance-addon-operators
     - openshift-priv/build-machinery-go
     - openshift-priv/csi-driver-manila-operator
+    - openshift-priv/kubernetes-nmstate
     - openshift-priv/windows-machine-config-bootstrapper
     - openshift-priv/windows-machine-config-operator
     - openshift/build-machinery-go
@@ -1681,6 +1689,7 @@ tide:
     - openshift/knative-eventing-contrib
     - openshift/knative-pkg
     - openshift/knative-serving
+    - openshift/kubernetes-nmstate
     - openshift/pipelines-catalog
     - openshift/pipelines-tutorial
     - openshift/release

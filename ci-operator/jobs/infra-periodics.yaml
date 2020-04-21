@@ -131,7 +131,7 @@ periodics:
       - --confirm
       command:
       - /app/robots/commenter/app.binary
-      image: gcr.io/k8s-prow/commenter:v20200415-d39ee60f6
+      image: gcr.io/k8s-prow/commenter:v20200417-a6017ee5b
       imagePullPolicy: Always
       name: ""
       resources:
@@ -175,7 +175,7 @@ periodics:
       - --confirm
       command:
       - /app/robots/commenter/app.binary
-      image: gcr.io/k8s-prow/commenter:v20200415-d39ee60f6
+      image: gcr.io/k8s-prow/commenter:v20200417-a6017ee5b
       imagePullPolicy: Always
       name: ""
       resources:
@@ -228,7 +228,7 @@ periodics:
       - --random
       command:
       - /app/robots/commenter/app.binary
-      image: gcr.io/k8s-prow/commenter:v20200415-d39ee60f6
+      image: gcr.io/k8s-prow/commenter:v20200417-a6017ee5b
       imagePullPolicy: Always
       name: ""
       resources:
@@ -276,7 +276,7 @@ periodics:
       - --confirm
       command:
       - /app/robots/commenter/app.binary
-      image: gcr.io/k8s-prow/commenter:v20200415-d39ee60f6
+      image: gcr.io/k8s-prow/commenter:v20200417-a6017ee5b
       imagePullPolicy: Always
       name: ""
       resources:
@@ -328,7 +328,7 @@ periodics:
       - --confirm
       command:
       - /app/robots/commenter/app.binary
-      image: gcr.io/k8s-prow/commenter:v20200415-d39ee60f6
+      image: gcr.io/k8s-prow/commenter:v20200417-a6017ee5b
       imagePullPolicy: Always
       name: ""
       resources:
@@ -379,7 +379,7 @@ periodics:
       - --confirm
       command:
       - /app/robots/commenter/app.binary
-      image: gcr.io/k8s-prow/commenter:v20200415-d39ee60f6
+      image: gcr.io/k8s-prow/commenter:v20200417-a6017ee5b
       imagePullPolicy: Always
       name: ""
       resources:
@@ -413,7 +413,7 @@ periodics:
       - --debug
       command:
       - /app/label_sync/app.binary
-      image: gcr.io/k8s-prow/label_sync:v20200415-d39ee60f6
+      image: gcr.io/k8s-prow/label_sync:v20200417-a6017ee5b
       imagePullPolicy: Always
       name: ""
       resources:
@@ -671,7 +671,7 @@ periodics:
       - --github-graphql-endpoint=http://ghproxy/graphql
       command:
       - /app/prow/cmd/branchprotector/app.binary
-      image: gcr.io/k8s-prow/branchprotector:v20200415-d39ee60f6
+      image: gcr.io/k8s-prow/branchprotector:v20200417-a6017ee5b
       imagePullPolicy: Always
       name: ""
       resources:
@@ -783,7 +783,7 @@ periodics:
       - --fix-team-repos
       command:
       - /app/prow/cmd/peribolos/app.binary
-      image: gcr.io/k8s-prow/peribolos:v20200415-d39ee60f6
+      image: gcr.io/k8s-prow/peribolos:v20200417-a6017ee5b
       imagePullPolicy: Always
       name: ""
       resources:
@@ -945,7 +945,7 @@ periodics:
       env:
       - name: KUBECONFIG
         value: /etc/build-farm-credentials/api.ci.kubeconfig:/etc/build-farm-credentials/build01.kubeconfig:/etc/app-ci-config-updater-kubeconfig/kubeconfig
-      image: gcr.io/k8s-prow/config-bootstrapper:v20200415-d39ee60f6
+      image: gcr.io/k8s-prow/config-bootstrapper:v20200417-a6017ee5b
       imagePullPolicy: Always
       name: ""
       resources:
@@ -1141,3 +1141,48 @@ periodics:
       name: ""
       resources: {}
     serviceAccountName: imagestream-importer
+- agent: kubernetes
+  cluster: api.ci
+  decorate: true
+  decoration_config:
+    oauth_token_secret:
+      key: oauth
+      name: github-credentials-openshift-ci-robot-private-git-cloner
+  extra_refs:
+  - base_ref: master
+    org: openshift
+    repo: config
+    workdir: true
+  - base_ref: master
+    org: openshift
+    repo: release
+  interval: 12h
+  name: periodic-auto-private-org-peribolos-sync
+  spec:
+    containers:
+    - args:
+      - --github-token-path=/etc/github/oauth
+      - --github-endpoint=http://ghproxy
+      - --github-endpoint=https://api.github.com
+      - --github-graphql-endpoint=http://ghproxy/graphql
+      - --dry-run=false
+      - --git-name=openshift-bot
+      - --git-email=openshift-bot@redhat.com
+      - --peribolos-config=./org/config.yaml
+      - --release-repo-path=/home/prow/go/src/github.com/openshift/release
+      command:
+      - /usr/bin/autoperibolossync
+      image: registry.svc.ci.openshift.org/ci/auto-peribolos-sync:latest
+      imagePullPolicy: Always
+      name: auto-peribolos-sync
+      resources:
+        requests:
+          cpu: 500m
+      volumeMounts:
+      - mountPath: /etc/github
+        name: token
+        readOnly: true
+    volumes:
+    - name: token
+      secret:
+        secretName: github-credentials-openshift-bot
