@@ -460,10 +460,10 @@ plank:
             memory: 20Mi
       timeout: 4h0m0s
       utility_images:
-        clonerefs: gcr.io/k8s-prow/clonerefs:v20200417-a6017ee5b
-        entrypoint: gcr.io/k8s-prow/entrypoint:v20200417-a6017ee5b
-        initupload: gcr.io/k8s-prow/initupload:v20200417-a6017ee5b
-        sidecar: gcr.io/k8s-prow/sidecar:v20200417-a6017ee5b
+        clonerefs: gcr.io/k8s-prow/clonerefs:v20200421-88887d682
+        entrypoint: gcr.io/k8s-prow/entrypoint:v20200421-88887d682
+        initupload: gcr.io/k8s-prow/initupload:v20200421-88887d682
+        sidecar: gcr.io/k8s-prow/sidecar:v20200421-88887d682
     openshift-priv:
       gcs_configuration:
         bucket: origin-ci-private
@@ -677,7 +677,7 @@ tide:
     - do-not-merge/invalid-owners-file
     - bugzilla/invalid-bug
     repos:
-    - bentitopolis/operator-metering
+    - kubernetes-reporting/metering-operator
     - openshift-priv/ansible-service-broker
     - openshift-priv/api
     - openshift-priv/apiserver-library-go
@@ -1045,7 +1045,7 @@ tide:
     - do-not-merge/invalid-owners-file
     - bugzilla/invalid-bug
     repos:
-    - bentitopolis/operator-metering
+    - kubernetes-reporting/metering-operator
     - openshift-priv/ansible-service-broker
     - openshift-priv/api
     - openshift-priv/apiserver-library-go
@@ -1379,6 +1379,7 @@ tide:
   - includedBranches:
     - release-3.11
     - feature-es6x
+    - fcos
     labels:
     - lgtm
     - approved
@@ -1393,6 +1394,7 @@ tide:
     - openshift-priv/cluster-logging-operator
     - openshift-priv/elasticsearch-operator
     - openshift-priv/image-registry
+    - openshift-priv/installer
     - openshift-priv/openshift-ansible
     - openshift-priv/origin
     - openshift-priv/origin-aggregated-logging
@@ -1401,6 +1403,7 @@ tide:
     - openshift/cluster-logging-operator
     - openshift/elasticsearch-operator
     - openshift/image-registry
+    - openshift/installer
     - openshift/openshift-ansible
     - openshift/origin
     - openshift/origin-aggregated-logging
@@ -1417,7 +1420,7 @@ tide:
     - do-not-merge/invalid-owners-file
     - bugzilla/invalid-bug
     repos:
-    - bentitopolis/operator-metering
+    - kubernetes-reporting/metering-operator
     - openshift-priv/operator-metering
     - operator-framework/operator-metering
   - labels:

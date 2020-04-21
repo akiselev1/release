@@ -1,21 +1,19 @@
 presubmits:
-  openshift-priv/cluster-config-operator:
+  openshift/hive:
   - agent: kubernetes
     always_run: true
     branches:
-    - release-4.5
-    cluster: ci/api-build01-ci-devcluster-openshift-com:6443
-    context: ci/prow/e2e-aws
+    - ocm-4.4.0
+    cluster: api.ci
+    context: ci/prow/e2e
     decorate: true
     decoration_config:
       skip_cloning: true
-    hidden: true
     labels:
       ci-operator.openshift.io/prowgen-controlled: "true"
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-priv-cluster-config-operator-release-4.5-e2e-aws
-    path_alias: github.com/openshift/cluster-config-operator
-    rerun_command: /test e2e-aws
+    name: pull-ci-openshift-hive-ocm-4.4.0-e2e
+    rerun_command: /test e2e
     spec:
       containers:
       - args:
@@ -26,11 +24,18 @@ presubmits:
         - --lease-server-password-file=/etc/boskos/password
         - --lease-server-username=ci
         - --lease-server=https://boskos-ci.svc.ci.openshift.org
-        - --oauth-token-path=/usr/local/github-credentials/oauth
-        - --secret-dir=/usr/local/e2e-aws-cluster-profile
-        - --target=e2e-aws
+        - --secret-dir=/usr/local/e2e-cluster-profile
+        - --target=e2e
+        - --template=/usr/local/e2e
         command:
         - ci-operator
+        env:
+        - name: CLUSTER_TYPE
+          value: aws
+        - name: JOB_NAME_SAFE
+          value: e2e
+        - name: TEST_COMMAND
+          value: CLOUD=aws make test-e2e
         image: ci-operator:latest
         imagePullPolicy: Always
         name: ""
@@ -44,11 +49,11 @@ presubmits:
         - mountPath: /etc/boskos
           name: boskos
           readOnly: true
-        - mountPath: /usr/local/e2e-aws-cluster-profile
+        - mountPath: /usr/local/e2e-cluster-profile
           name: cluster-profile
-        - mountPath: /usr/local/github-credentials
-          name: github-credentials-openshift-ci-robot-private-git-cloner
-          readOnly: true
+        - mountPath: /usr/local/e2e
+          name: job-definition
+          subPath: cluster-launch-installer-src.yaml
         - mountPath: /etc/pull-secret
           name: pull-secret
           readOnly: true
@@ -71,106 +76,27 @@ presubmits:
           sources:
           - secret:
               name: cluster-secrets-aws
-      - name: github-credentials-openshift-ci-robot-private-git-cloner
-        secret:
-          secretName: github-credentials-openshift-ci-robot-private-git-cloner
+      - configMap:
+          name: prow-job-cluster-launch-installer-src
+        name: job-definition
       - name: pull-secret
         secret:
           secretName: regcred
-    trigger: (?m)^/test( | .* )e2e-aws,?($|\s.*)
+    trigger: (?m)^/test( | .* )e2e,?($|\s.*)
   - agent: kubernetes
-    always_run: true
+    always_run: false
     branches:
-    - release-4.5
-    cluster: ci/api-build01-ci-devcluster-openshift-com:6443
-    context: ci/prow/e2e-aws-upgrade
-    decorate: true
-    decoration_config:
-      skip_cloning: true
-    hidden: true
-    labels:
-      ci-operator.openshift.io/prowgen-controlled: "true"
-      pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-priv-cluster-config-operator-release-4.5-e2e-aws-upgrade
-    path_alias: github.com/openshift/cluster-config-operator
-    rerun_command: /test e2e-aws-upgrade
-    spec:
-      containers:
-      - args:
-        - --artifact-dir=$(ARTIFACTS)
-        - --give-pr-author-access-to-namespace=true
-        - --image-import-pull-secret=/etc/pull-secret/.dockerconfigjson
-        - --kubeconfig=/etc/apici/kubeconfig
-        - --lease-server-password-file=/etc/boskos/password
-        - --lease-server-username=ci
-        - --lease-server=https://boskos-ci.svc.ci.openshift.org
-        - --oauth-token-path=/usr/local/github-credentials/oauth
-        - --secret-dir=/usr/local/e2e-aws-upgrade-cluster-profile
-        - --target=e2e-aws-upgrade
-        command:
-        - ci-operator
-        image: ci-operator:latest
-        imagePullPolicy: Always
-        name: ""
-        resources:
-          requests:
-            cpu: 10m
-        volumeMounts:
-        - mountPath: /etc/apici
-          name: apici-ci-operator-credentials
-          readOnly: true
-        - mountPath: /etc/boskos
-          name: boskos
-          readOnly: true
-        - mountPath: /usr/local/e2e-aws-upgrade-cluster-profile
-          name: cluster-profile
-        - mountPath: /usr/local/github-credentials
-          name: github-credentials-openshift-ci-robot-private-git-cloner
-          readOnly: true
-        - mountPath: /etc/pull-secret
-          name: pull-secret
-          readOnly: true
-      serviceAccountName: ci-operator
-      volumes:
-      - name: apici-ci-operator-credentials
-        secret:
-          items:
-          - key: sa.ci-operator.apici.config
-            path: kubeconfig
-          secretName: apici-ci-operator-credentials
-      - name: boskos
-        secret:
-          items:
-          - key: password
-            path: password
-          secretName: boskos-credentials
-      - name: cluster-profile
-        projected:
-          sources:
-          - secret:
-              name: cluster-secrets-aws
-      - name: github-credentials-openshift-ci-robot-private-git-cloner
-        secret:
-          secretName: github-credentials-openshift-ci-robot-private-git-cloner
-      - name: pull-secret
-        secret:
-          secretName: regcred
-    trigger: (?m)^/test( | .* )e2e-aws-upgrade,?($|\s.*)
-  - agent: kubernetes
-    always_run: true
-    branches:
-    - release-4.5
-    cluster: ci/api-build01-ci-devcluster-openshift-com:6443
+    - ocm-4.4.0
+    cluster: api.ci
     context: ci/prow/e2e-azure
     decorate: true
     decoration_config:
       skip_cloning: true
-    hidden: true
     labels:
       ci-operator.openshift.io/prowgen-controlled: "true"
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-priv-cluster-config-operator-release-4.5-e2e-azure
-    path_alias: github.com/openshift/cluster-config-operator
+    name: pull-ci-openshift-hive-ocm-4.4.0-e2e-azure
+    optional: true
     rerun_command: /test e2e-azure
     spec:
       containers:
@@ -182,7 +108,6 @@ presubmits:
         - --lease-server-password-file=/etc/boskos/password
         - --lease-server-username=ci
         - --lease-server=https://boskos-ci.svc.ci.openshift.org
-        - --oauth-token-path=/usr/local/github-credentials/oauth
         - --secret-dir=/usr/local/e2e-azure-cluster-profile
         - --target=e2e-azure
         - --template=/usr/local/e2e-azure
@@ -194,7 +119,7 @@ presubmits:
         - name: JOB_NAME_SAFE
           value: e2e-azure
         - name: TEST_COMMAND
-          value: TEST_SUITE=openshift/conformance/parallel run-tests
+          value: CLOUD=azure make test-e2e
         image: ci-operator:latest
         imagePullPolicy: Always
         name: ""
@@ -210,12 +135,9 @@ presubmits:
           readOnly: true
         - mountPath: /usr/local/e2e-azure-cluster-profile
           name: cluster-profile
-        - mountPath: /usr/local/github-credentials
-          name: github-credentials-openshift-ci-robot-private-git-cloner
-          readOnly: true
         - mountPath: /usr/local/e2e-azure
           name: job-definition
-          subPath: cluster-launch-installer-e2e.yaml
+          subPath: cluster-launch-installer-src.yaml
         - mountPath: /etc/pull-secret
           name: pull-secret
           readOnly: true
@@ -238,31 +160,27 @@ presubmits:
           sources:
           - secret:
               name: cluster-secrets-azure4
-      - name: github-credentials-openshift-ci-robot-private-git-cloner
-        secret:
-          secretName: github-credentials-openshift-ci-robot-private-git-cloner
       - configMap:
-          name: prow-job-cluster-launch-installer-e2e
+          name: prow-job-cluster-launch-installer-src
         name: job-definition
       - name: pull-secret
         secret:
           secretName: regcred
     trigger: (?m)^/test( | .* )e2e-azure,?($|\s.*)
   - agent: kubernetes
-    always_run: true
+    always_run: false
     branches:
-    - release-4.5
-    cluster: ci/api-build01-ci-devcluster-openshift-com:6443
+    - ocm-4.4.0
+    cluster: api.ci
     context: ci/prow/e2e-gcp
     decorate: true
     decoration_config:
       skip_cloning: true
-    hidden: true
     labels:
       ci-operator.openshift.io/prowgen-controlled: "true"
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-priv-cluster-config-operator-release-4.5-e2e-gcp
-    path_alias: github.com/openshift/cluster-config-operator
+    name: pull-ci-openshift-hive-ocm-4.4.0-e2e-gcp
+    optional: true
     rerun_command: /test e2e-gcp
     spec:
       containers:
@@ -274,7 +192,6 @@ presubmits:
         - --lease-server-password-file=/etc/boskos/password
         - --lease-server-username=ci
         - --lease-server=https://boskos-ci.svc.ci.openshift.org
-        - --oauth-token-path=/usr/local/github-credentials/oauth
         - --secret-dir=/usr/local/e2e-gcp-cluster-profile
         - --target=e2e-gcp
         - --template=/usr/local/e2e-gcp
@@ -286,7 +203,7 @@ presubmits:
         - name: JOB_NAME_SAFE
           value: e2e-gcp
         - name: TEST_COMMAND
-          value: TEST_SUITE=openshift/conformance/parallel run-tests
+          value: CLOUD=gcp make test-e2e
         image: ci-operator:latest
         imagePullPolicy: Always
         name: ""
@@ -302,12 +219,9 @@ presubmits:
           readOnly: true
         - mountPath: /usr/local/e2e-gcp-cluster-profile
           name: cluster-profile
-        - mountPath: /usr/local/github-credentials
-          name: github-credentials-openshift-ci-robot-private-git-cloner
-          readOnly: true
         - mountPath: /usr/local/e2e-gcp
           name: job-definition
-          subPath: cluster-launch-installer-e2e.yaml
+          subPath: cluster-launch-installer-src.yaml
         - mountPath: /etc/pull-secret
           name: pull-secret
           readOnly: true
@@ -332,11 +246,8 @@ presubmits:
               name: cluster-secrets-gcp
           - configMap:
               name: cluster-profile-gcp
-      - name: github-credentials-openshift-ci-robot-private-git-cloner
-        secret:
-          secretName: github-credentials-openshift-ci-robot-private-git-cloner
       - configMap:
-          name: prow-job-cluster-launch-installer-e2e
+          name: prow-job-cluster-launch-installer-src
         name: job-definition
       - name: pull-secret
         secret:
@@ -345,18 +256,16 @@ presubmits:
   - agent: kubernetes
     always_run: true
     branches:
-    - release-4.5
-    cluster: ci/api-build01-ci-devcluster-openshift-com:6443
+    - ocm-4.4.0
+    cluster: api.ci
     context: ci/prow/images
     decorate: true
     decoration_config:
       skip_cloning: true
-    hidden: true
     labels:
       ci-operator.openshift.io/prowgen-controlled: "true"
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-priv-cluster-config-operator-release-4.5-images
-    path_alias: github.com/openshift/cluster-config-operator
+    name: pull-ci-openshift-hive-ocm-4.4.0-images
     rerun_command: /test images
     spec:
       containers:
@@ -365,7 +274,6 @@ presubmits:
         - --give-pr-author-access-to-namespace=true
         - --image-import-pull-secret=/etc/pull-secret/.dockerconfigjson
         - --kubeconfig=/etc/apici/kubeconfig
-        - --oauth-token-path=/usr/local/github-credentials/oauth
         - --target=[images]
         command:
         - ci-operator
@@ -379,8 +287,54 @@ presubmits:
         - mountPath: /etc/apici
           name: apici-ci-operator-credentials
           readOnly: true
-        - mountPath: /usr/local/github-credentials
-          name: github-credentials-openshift-ci-robot-private-git-cloner
+        - mountPath: /etc/pull-secret
+          name: pull-secret
+          readOnly: true
+      serviceAccountName: ci-operator
+      volumes:
+      - name: apici-ci-operator-credentials
+        secret:
+          items:
+          - key: sa.ci-operator.apici.config
+            path: kubeconfig
+          secretName: apici-ci-operator-credentials
+      - name: pull-secret
+        secret:
+          secretName: regcred
+    trigger: (?m)^/test( | .* )images,?($|\s.*)
+  - agent: kubernetes
+    always_run: true
+    branches:
+    - ocm-4.4.0
+    cluster: api.ci
+    context: ci/prow/integration
+    decorate: true
+    decoration_config:
+      skip_cloning: true
+    labels:
+      ci-operator.openshift.io/prowgen-controlled: "true"
+      pj-rehearse.openshift.io/can-be-rehearsed: "true"
+    name: pull-ci-openshift-hive-ocm-4.4.0-integration
+    rerun_command: /test integration
+    spec:
+      containers:
+      - args:
+        - --artifact-dir=$(ARTIFACTS)
+        - --give-pr-author-access-to-namespace=true
+        - --image-import-pull-secret=/etc/pull-secret/.dockerconfigjson
+        - --kubeconfig=/etc/apici/kubeconfig
+        - --target=integration
+        command:
+        - ci-operator
+        image: ci-operator:latest
+        imagePullPolicy: Always
+        name: ""
+        resources:
+          requests:
+            cpu: 10m
+        volumeMounts:
+        - mountPath: /etc/apici
+          name: apici-ci-operator-credentials
           readOnly: true
         - mountPath: /etc/pull-secret
           name: pull-secret
@@ -393,28 +347,23 @@ presubmits:
           - key: sa.ci-operator.apici.config
             path: kubeconfig
           secretName: apici-ci-operator-credentials
-      - name: github-credentials-openshift-ci-robot-private-git-cloner
-        secret:
-          secretName: github-credentials-openshift-ci-robot-private-git-cloner
       - name: pull-secret
         secret:
           secretName: regcred
-    trigger: (?m)^/test( | .* )images,?($|\s.*)
+    trigger: (?m)^/test( | .* )integration,?($|\s.*)
   - agent: kubernetes
     always_run: true
     branches:
-    - release-4.5
-    cluster: ci/api-build01-ci-devcluster-openshift-com:6443
+    - ocm-4.4.0
+    cluster: api.ci
     context: ci/prow/unit
     decorate: true
     decoration_config:
       skip_cloning: true
-    hidden: true
     labels:
       ci-operator.openshift.io/prowgen-controlled: "true"
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-priv-cluster-config-operator-release-4.5-unit
-    path_alias: github.com/openshift/cluster-config-operator
+    name: pull-ci-openshift-hive-ocm-4.4.0-unit
     rerun_command: /test unit
     spec:
       containers:
@@ -423,7 +372,6 @@ presubmits:
         - --give-pr-author-access-to-namespace=true
         - --image-import-pull-secret=/etc/pull-secret/.dockerconfigjson
         - --kubeconfig=/etc/apici/kubeconfig
-        - --oauth-token-path=/usr/local/github-credentials/oauth
         - --target=unit
         command:
         - ci-operator
@@ -437,9 +385,6 @@ presubmits:
         - mountPath: /etc/apici
           name: apici-ci-operator-credentials
           readOnly: true
-        - mountPath: /usr/local/github-credentials
-          name: github-credentials-openshift-ci-robot-private-git-cloner
-          readOnly: true
         - mountPath: /etc/pull-secret
           name: pull-secret
           readOnly: true
@@ -451,9 +396,6 @@ presubmits:
           - key: sa.ci-operator.apici.config
             path: kubeconfig
           secretName: apici-ci-operator-credentials
-      - name: github-credentials-openshift-ci-robot-private-git-cloner
-        secret:
-          secretName: github-credentials-openshift-ci-robot-private-git-cloner
       - name: pull-secret
         secret:
           secretName: regcred
@@ -461,18 +403,16 @@ presubmits:
   - agent: kubernetes
     always_run: true
     branches:
-    - release-4.5
-    cluster: ci/api-build01-ci-devcluster-openshift-com:6443
+    - ocm-4.4.0
+    cluster: api.ci
     context: ci/prow/verify
     decorate: true
     decoration_config:
       skip_cloning: true
-    hidden: true
     labels:
       ci-operator.openshift.io/prowgen-controlled: "true"
       pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-priv-cluster-config-operator-release-4.5-verify
-    path_alias: github.com/openshift/cluster-config-operator
+    name: pull-ci-openshift-hive-ocm-4.4.0-verify
     rerun_command: /test verify
     spec:
       containers:
@@ -481,7 +421,6 @@ presubmits:
         - --give-pr-author-access-to-namespace=true
         - --image-import-pull-secret=/etc/pull-secret/.dockerconfigjson
         - --kubeconfig=/etc/apici/kubeconfig
-        - --oauth-token-path=/usr/local/github-credentials/oauth
         - --target=verify
         command:
         - ci-operator
@@ -495,9 +434,6 @@ presubmits:
         - mountPath: /etc/apici
           name: apici-ci-operator-credentials
           readOnly: true
-        - mountPath: /usr/local/github-credentials
-          name: github-credentials-openshift-ci-robot-private-git-cloner
-          readOnly: true
         - mountPath: /etc/pull-secret
           name: pull-secret
           readOnly: true
@@ -509,68 +445,7 @@ presubmits:
           - key: sa.ci-operator.apici.config
             path: kubeconfig
           secretName: apici-ci-operator-credentials
-      - name: github-credentials-openshift-ci-robot-private-git-cloner
-        secret:
-          secretName: github-credentials-openshift-ci-robot-private-git-cloner
       - name: pull-secret
         secret:
           secretName: regcred
     trigger: (?m)^/test( | .* )verify,?($|\s.*)
-  - agent: kubernetes
-    always_run: true
-    branches:
-    - release-4.5
-    cluster: ci/api-build01-ci-devcluster-openshift-com:6443
-    context: ci/prow/verify-deps
-    decorate: true
-    decoration_config:
-      skip_cloning: true
-    hidden: true
-    labels:
-      ci-operator.openshift.io/prowgen-controlled: "true"
-      pj-rehearse.openshift.io/can-be-rehearsed: "true"
-    name: pull-ci-openshift-priv-cluster-config-operator-release-4.5-verify-deps
-    path_alias: github.com/openshift/cluster-config-operator
-    rerun_command: /test verify-deps
-    spec:
-      containers:
-      - args:
-        - --artifact-dir=$(ARTIFACTS)
-        - --give-pr-author-access-to-namespace=true
-        - --image-import-pull-secret=/etc/pull-secret/.dockerconfigjson
-        - --kubeconfig=/etc/apici/kubeconfig
-        - --oauth-token-path=/usr/local/github-credentials/oauth
-        - --target=verify-deps
-        command:
-        - ci-operator
-        image: ci-operator:latest
-        imagePullPolicy: Always
-        name: ""
-        resources:
-          requests:
-            cpu: 10m
-        volumeMounts:
-        - mountPath: /etc/apici
-          name: apici-ci-operator-credentials
-          readOnly: true
-        - mountPath: /usr/local/github-credentials
-          name: github-credentials-openshift-ci-robot-private-git-cloner
-          readOnly: true
-        - mountPath: /etc/pull-secret
-          name: pull-secret
-          readOnly: true
-      serviceAccountName: ci-operator
-      volumes:
-      - name: apici-ci-operator-credentials
-        secret:
-          items:
-          - key: sa.ci-operator.apici.config
-            path: kubeconfig
-          secretName: apici-ci-operator-credentials
-      - name: github-credentials-openshift-ci-robot-private-git-cloner
-        secret:
-          secretName: github-credentials-openshift-ci-robot-private-git-cloner
-      - name: pull-secret
-        secret:
-          secretName: regcred
-    trigger: (?m)^/test( | .* )verify-deps,?($|\s.*)
