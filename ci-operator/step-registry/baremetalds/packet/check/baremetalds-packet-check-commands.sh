@@ -50,7 +50,7 @@ then
     echo "$leaks_report"
     set +x
     curl -X POST --data-urlencode\
-     "payload={\"text\":\"New Packet.net server $leak_num leaks found!\n\",\"attachments\":[{\"color\":\"warning\",\"text\":\"$leaks_report\"}]}"\
+     "payload={\"text\":\"New Packet.net server leaks total: $leak_num. More details:\n\",\"attachments\":[{\"color\":\"warning\",\"text\":\"$leaks_report\"}]}"\
       https://hooks.slack.com/services/T027F3GAJ/B011TAG710V/${SLACK_AUTH_TOKEN}
     
     #delete leaks
