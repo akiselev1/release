@@ -460,10 +460,10 @@ plank:
             memory: 20Mi
       timeout: 4h0m0s
       utility_images:
-        clonerefs: gcr.io/k8s-prow/clonerefs:v20200421-88887d682
-        entrypoint: gcr.io/k8s-prow/entrypoint:v20200421-88887d682
-        initupload: gcr.io/k8s-prow/initupload:v20200421-88887d682
-        sidecar: gcr.io/k8s-prow/sidecar:v20200421-88887d682
+        clonerefs: gcr.io/k8s-prow/clonerefs:v20200421-ebf44f08e
+        entrypoint: gcr.io/k8s-prow/entrypoint:v20200421-ebf44f08e
+        initupload: gcr.io/k8s-prow/initupload:v20200421-ebf44f08e
+        sidecar: gcr.io/k8s-prow/sidecar:v20200421-ebf44f08e
     openshift-priv:
       gcs_configuration:
         bucket: origin-ci-private
@@ -1465,7 +1465,6 @@ tide:
     - openshift-priv/sriov-dp-admission-controller
     - openshift-priv/sriov-network-device-plugin
     - openshift-priv/sriov-network-operator
-    - openshift/azure-sop
     - openshift/cluster-capacity
     - openshift/cluster-operator
     - openshift/coredns
@@ -1496,6 +1495,16 @@ tide:
     - bugzilla/invalid-bug
     repos:
     - openshift/openshift-azure
+  - labels:
+    - lgtm
+    missingLabels:
+    - needs-rebase
+    - do-not-merge/hold
+    - do-not-merge/work-in-progress
+    - do-not-merge/invalid-owners-file
+    - bugzilla/invalid-bug
+    repos:
+    - openshift/azure-sop
   - labels:
     - lgtm
     - approved

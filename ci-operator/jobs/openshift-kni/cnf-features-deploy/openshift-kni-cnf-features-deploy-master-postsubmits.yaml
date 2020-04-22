@@ -1,15 +1,16 @@
 postsubmits:
-  operator-framework/operator-metering:
+  openshift-kni/cnf-features-deploy:
   - agent: kubernetes
     branches:
-    - ^release-4\.2$
+    - ^master$
     cluster: api.ci
     decorate: true
     decoration_config:
       skip_cloning: true
     labels:
       ci-operator.openshift.io/prowgen-controlled: "true"
-    name: branch-ci-operator-framework-operator-metering-release-4.2-images
+    max_concurrency: 1
+    name: branch-ci-openshift-kni-cnf-features-deploy-master-images
     spec:
       containers:
       - args:
